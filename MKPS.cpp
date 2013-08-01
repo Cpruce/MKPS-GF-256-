@@ -105,6 +105,8 @@ public:
         (*this).d = d;
         (*this).m = m;
         (*this).t = calcLT(M, d);
+        (*this).expns = *new vector<vector<unsigned char> > ();
+        (*this).coeffs = *new vector<unsigned char> ();
     }; 
     vector<unsigned char> getCoeffs() {   
         return (*this).coeffs;
@@ -203,14 +205,17 @@ public:
 
 D_var * createD_varSymPolys(unsigned char d, unsigned char m){
     
+    //vector<D_var> D_vars = *new vector<D_var>();
     D_var * D_vars = new D_var[d*m];
     vector< vector < vector <unsigned char > > > cfs = *new vector< vector < vector <unsigned char> > > ();
     vector< vector< vector < vector <unsigned char > > > > eps = *new vector< vector< vector < vector <unsigned char> > > >();
-    D_var temp = *new D_var(d, m);
-    unsigned char t = temp.getLT();
     
-    unsigned char alpha = rand() % 255;          // coefficients from GF(256)
-    unsigned char beta = rand() % 255;
+    D_var * temp = new D_var(d, m);
+    //return;
+    int t = (*temp).getLT();
+    
+    int alpha = rand() % 255;          // coefficients from GF(256)
+    int beta = rand() % 255;
     int a1 = rand() % (t - 1);                   // 0 <= (exponents = psuedo-random number) < t
     int a2 = rand() % (t - 1);
     int b0 = rand() % (t - 1);
@@ -249,13 +254,16 @@ D_var * createD_varSymPolys(unsigned char d, unsigned char m){
             b0 = rand() % (t - 1);
             b1 = rand() % (t - 1);
             b2 = rand() % (t - 1);
-            temp.setDPolyCo(cfs[i][j]);
-            temp.setDPolyEx(eps[i][j]);
-            *(D_vars + i*d + j) = temp;
             
+            (*temp).setDPolyCo(cfs[i][j]);
+            (*temp).setDPolyEx(eps[i][j]);
+            (*(D_vars + i*d + j)).setDPolyCo((*temp).getCoeffs());
+            (*(D_vars + i*d + j)).setDPolyEx((*temp).getExpns());
+            //D_vars.push_back(temp);
+            cout << "i*d + j = " << i*d + j << endl;
         }
     }
-    cout << "hi" << endl;
+    //cout << "hi" << endl;
     for(int i = 0; i < 9; i++){
         
         for(int j = 0; j < 2; j++){
@@ -264,8 +272,9 @@ D_var * createD_varSymPolys(unsigned char d, unsigned char m){
         }
     }
     
-    cout << "hi" << endl;
-    return D_vars;
+    //cout << "asdfsd" << endl;
+
+    return D_vars; 
 }
 
 
@@ -557,7 +566,8 @@ int main(){
                            //print(jk);
                            //cout << static_cast<int>((*jk).getSize()) << endl;
                            
-                           D_var * ds = createD_varSymPolys(3, 3);
+     
+                           D_var * dvs = createD_varSymPolys(3, 3);
                            
                            cout << "hi" << endl;
                            
@@ -589,5 +599,5 @@ int main(){
                            
                            //cout << "size of everything is " << sizeof((*id).get()) + (*(*id).get()).capacity() << endl;
                            
-                           return 0;
+                           //return 0;
                        }
