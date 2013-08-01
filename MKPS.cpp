@@ -29,7 +29,6 @@ int factorial(int ent);
 
 
 
-
 /* Setup */
 
 class ID{
@@ -122,6 +121,12 @@ public:
     unsigned char getLT(){
         return (*this).t;
     }
+    void setDPolyEx(vector< vector<unsigned char> > elem){
+        (*this).expns = elem;
+    }
+    void setDPolyCo(vector<unsigned char> elem){
+        (*this).coeffs = elem;
+    }
     ~D_var(){ delete this;};
     
 };
@@ -203,6 +208,7 @@ D_var * createD_varSymPolys(unsigned char d, unsigned char m){
     vector< vector< vector < vector <unsigned char > > > > eps = *new vector< vector< vector < vector <unsigned char> > > >();
     D_var temp = *new D_var(d, m);
     unsigned char t = temp.getLT();
+    
     unsigned char alpha = rand() % 255;          // coefficients from GF(256)
     unsigned char beta = rand() % 255;
     int a1 = rand() % (t - 1);                   // 0 <= (exponents = psuedo-random number) < t
@@ -225,11 +231,17 @@ D_var * createD_varSymPolys(unsigned char d, unsigned char m){
             eps.at(i).at(j).push_back(*new vector<unsigned char>());
             eps.at(i).at(j).push_back(*new vector<unsigned char>());
             eps.at(i).at(j).at(0).push_back(t);
+            //cout << "eps.at(i).at(j).at(0).push_back(t); is " << static_cast<int>(eps.at(i).at(j).at(0).at(0)) << endl;
             eps.at(i).at(j).at(0).push_back(a1);
+            //cout << "eps.at(i).at(j).at(0).push_back(t); is " << static_cast<int>(eps.at(i).at(j).at(0).at(1)) << endl;
             eps.at(i).at(j).at(0).push_back(a2);
+            //cout << "eps.at(i).at(j).at(0).push_back(t); is " << static_cast<int>(eps.at(i).at(j).at(0).at(2)) << endl;
             eps.at(i).at(j).at(1).push_back(b0);
+            //cout << "eps.at(i).at(j).at(0).push_back(t); is " << static_cast<int>(eps.at(i).at(j).at(1).at(0)) << endl;
             eps.at(i).at(j).at(1).push_back(b1);
+            //cout << "eps.at(i).at(j).at(0).push_back(t); is " << static_cast<int>(eps.at(i).at(j).at(1).at(1)) << endl;
             eps.at(i).at(j).at(1).push_back(b2);
+            //cout << "eps.at(i).at(j).at(0).push_back(t); is " << static_cast<int>(eps.at(i).at(j).at(1).at(2)) << endl;
             alpha = rand() % 255;
             beta = rand() % 255;
             a1 = rand() % (t - 1);                   
@@ -237,11 +249,22 @@ D_var * createD_varSymPolys(unsigned char d, unsigned char m){
             b0 = rand() % (t - 1);
             b1 = rand() % (t - 1);
             b2 = rand() % (t - 1);
-            temp.getCoeffs() = cfs[i][j];
-            temp.getExpns() = eps[i][j];
+            temp.setDPolyCo(cfs[i][j]);
+            temp.setDPolyEx(eps[i][j]);
             *(D_vars + i*d + j) = temp;
+            
         }
     }
+    cout << "hi" << endl;
+    for(int i = 0; i < 9; i++){
+        
+        for(int j = 0; j < 2; j++){
+            cout << "ds[" << i << "][" << j << "] = " << static_cast<int>((*(D_vars + i)).getCoeffs().at(j)) << endl;
+            //cout << "ds[" << i << "][" << j << "] = " << static_cast<int>((*(ds + i)).getExpns().at(j)) << endl;
+        }
+    }
+    
+    cout << "hi" << endl;
     return D_vars;
 }
 
@@ -362,138 +385,130 @@ int hasHamOne(Uni_var A, Uni_var B){                                // returns -
     return j;
  }
                        
-                       SymKey * establishLinkKey(ID A, ID B, D_var * dv, unsigned char m){
+SymKey * establishLinkKey(ID A, ID B, D_var * dv, unsigned char m){
+    
+        unsigned char d = A.getSize();
                            
-                           unsigned char d = A.getSize();
+        SymKey * symKeys = new SymKey[d-1];
                            
-                           SymKey * symKeys = new SymKey[d-1];
+        Uni_var * aRing = createKeyRing(A, dv, m);
+        Uni_var * bRing = createKeyRing(B, dv, m);
                            
-                           Uni_var * aRing = createKeyRing(A, dv, m);
-                           Uni_var * bRing = createKeyRing(B, dv, m);
+        int common = -1;
+        unsigned char sInd = 0;
                            
-                           int common = -1;
-                           unsigned char sInd = 0;
-                           
-                           for(unsigned char i = 0; i < d; i++){
+        for(unsigned char i = 0; i < d; i++){
                                
-                               if((common = hasHamOne(aRing[i], bRing[i])) != -1){   // create key
+            if((common = hasHamOne(aRing[i], bRing[i])) != -1){   // create key
                                    
-                                   m = (*(aRing + i)).getM();
+                m = (*(aRing + i)).getM();
                                    
-                                   *(symKeys + sInd) = *new SymKey(d, m);
+                *(symKeys + sInd) = *new SymKey(d, m);
                                    
-                                   int j = 0;
-                                   int ind = 0;
+                int j = 0;
+                int ind = 0;
                                    
-                                   while(j < d){
+                while(j < d){
                                        
-                                       if(j != common){
+                    if(j != common){
                                            
-                                           (symKeys + sInd)->getExpns().at(j) = (*(aRing + i)).getExpns().at(ind);
-                                           (symKeys + sInd)->getCoeffs().at(j) = (*(aRing + i)).getCoeffs().at(ind);
-                                           (symKeys + sInd)->getExpns().at(j+1) = (*(bRing + i)).getExpns().at(ind);
-                                           (symKeys + sInd)->getCoeffs().at(j+1) = (*(bRing + i)).getCoeffs().at(ind);
-                                           j++;
+                        (symKeys + sInd)->getExpns().at(j) = (*(aRing + i)).getExpns().at(ind);
+                        (symKeys + sInd)->getCoeffs().at(j) = (*(aRing + i)).getCoeffs().at(ind);
+                        (symKeys + sInd)->getExpns().at(j+1) = (*(bRing + i)).getExpns().at(ind);
+                        (symKeys + sInd)->getCoeffs().at(j+1) = (*(bRing + i)).getCoeffs().at(ind);
+                        j++;
                                            
-                                       }
-                                       else {
+                    }
+                    else {
+                                    
+                        (symKeys + sInd)->getExpns().at(j) = (*(aRing + i)).getExpns().at(ind);
+                        (symKeys + sInd)->getCoeffs().at(j) = (*(aRing + i)).getCoeffs().at(ind);
                                            
-                                           (symKeys + sInd)->getExpns().at(j) = (*(aRing + i)).getExpns().at(ind);
-                                           (symKeys + sInd)->getCoeffs().at(j) = (*(aRing + i)).getCoeffs().at(ind);
-                                           
-                                       }
-                                       ind++;
-                                       j++;
-                                   }
+                    }
+                    ind++;
+                    j++;
+                }
                                    
-                               }
-                               
-                               else {
-                                   sInd--;
-                               }
-                               common = -1;
-                               sInd++;
-                           }
+            }
+            else {
+                sInd--;
+            }
+            common = -1;
+            sInd++;
+        }
                            
-                           unsigned char sum;
-                           for(int i = 0; i < d-1; i++){
-                               cout << "SymKey[" << i << "]'s m = " << static_cast<int>((*(symKeys + i)).getM()) << endl;
-                               for(int j = 0; j < d; j++){
-                                   cout << "SymKey[" << i << "][" << j << "] = " << static_cast<int>((*(symKeys + i)).getCoeffs().at(j)) << endl;
-                                   sum^=(*(symKeys + i)).getCoeffs().at(j);
-                               }
-                           }
-                           //cout << static_cast<int>(sum) << endl;
+        unsigned char sum;
+        for(int i = 0; i < d-1; i++){
+            cout << "SymKey[" << i << "]'s m = " << static_cast<int>((*(symKeys + i)).getM()) << endl;
+            for(int j = 0; j < d; j++){
+                cout << "SymKey[" << i << "][" << j << "] = " << static_cast<int>((*(symKeys + i)).getCoeffs().at(j)) << endl;
+                sum^=(*(symKeys + i)).getCoeffs().at(j);
+            }
+        }
+        //cout << static_cast<int>(sum) << endl;
                            
-                           return symKeys;
-                       }
+        return symKeys;
+}
+                                            
+unsigned char calcLM(unsigned char d, unsigned char n){
+    return static_cast<int>(ceil(pow(n, 1.0/d)));                           //double m = ceiling of the d route of n
+}
                        
-                       unsigned char calcLM(unsigned char d, unsigned char n){
-                           return static_cast<int>(ceil(pow(n, 1.0/d)));                           //double m = ceiling of the d route of n
-                       }
-                       
-                       unsigned char calcLT(unsigned char M, unsigned char d){                                                   
-                           return M/(d - 1);                                                       //int t =  floor of M/(d - 1)
-                       }
+unsigned char calcLT(unsigned char M, unsigned char d){                                                   
+    return M/(d - 1);                                                       //int t =  floor of M/(d - 1)
+}
                        
                        
-                    /* Network Connectivity and Resilience */
+/* Network Connectivity and Resilience */
                        
-                       // double R = min Communication radius ~= sqrt((ln(n) + c)/(pi * n * probabilityLinkKeyEstablishment)) where c > 0 is a constant
+// double R = min Communication radius ~= sqrt((ln(n) + c)/(pi * n * probabilityLinkKeyEstablishment)) where c > 0 is a constant
                        
-                       int factorial(int ent){
-                           int acc = 1;
+int factorial(int ent){
+    int acc = 1;
                            
-                           while(ent > 0){
-                               acc *= ent;
-                               ent--;
-                           }
+    while(ent > 0){
+        acc *= ent;
+        ent--;
+    }
                            
-                           return acc;
-                       }
+    return acc;
+}
                        
-                       double binomialCoefficient(int n, int j){               // n choose j
-                           return ((double)factorial(n))/(factorial(n - j)*factorial(j));
-                       }
+double binomialCoefficient(int n, int j){               // n choose j
+    return ((double)factorial(n))/(factorial(n - j)*factorial(j));
+}
                        
-                       double probabilityLinkKeyEstablishment(double d, double m, double v){
-                           double theta = 1 - ((double)(1/m));
-                           return ((d*(m-2)+v)*(pow(m-1, d)))/(n*(n-1)) + (theta*pow(m, d)*(m*(d-1) + v*pow(theta, v-1) + m*(1-d)*pow(theta, v))/(n*(n-1)));
-                       }
-                       
-                    /*int sizeOfLargeComponent(){
-                     int size = 0;
-                     
-                     return size;
-                     }*/
-                       
-                       double probabilityLinkKeyCompromise(int t, int m){
-                           double acc = 0.0;
-                           double pnc = 0.0;
+double probabilityLinkKeyEstablishment(double d, double m, double v){
+    double theta = 1 - ((double)(1/m));
+    return ((d*(m-2)+v)*(pow(m-1, d)))/(n*(n-1)) + (theta*pow(m, d)*(m*(d-1) + v*pow(theta, v-1) + m*(1-d)*pow(theta, v))/(n*(n-1)));
+}
+
+double probabilityLinkKeyCompromise(int t, int m){
+    double acc = 0.0;
+    double pnc = 0.0;
                            
-                           for(int i = 0; i < t; i++){
-                               acc += binomialCoefficient(m, i)*(pow(pnc, i))*(pow(1 - pnc, m - i)); 
-                           }
+    for(int i = 0; i < t; i++){
+        acc += binomialCoefficient(m, i)*(pow(pnc, i))*(pow(1 - pnc, m - i)); 
+    }
                            
-                           return 1 - acc;
-                       }
+    return 1 - acc;
+}
+                       
+//print function
+                       
+template<class T>
+void print(T obj){
+    int d = (*obj).getSize();
+    unsigned char * l = (*obj).get();
+    //cout << "d is " << d << endl;
+    for(int i = 0; i < d; i++){
+        cout << "The " << i << "th element is " << static_cast<int>(*(l + i)) << endl;
+    }
+    cout << endl;
+}
                        
                        
-                       //print function
-                       
-                       template<class T>
-                       void print(T obj){
-                           int d = (*obj).getSize();
-                           unsigned char * l = (*obj).get();
-                           //cout << "d is " << d << endl;
-                           for(int i = 0; i < d; i++){
-                               cout << "The " << i << "th element is " << static_cast<int>(*(l + i)) << endl;
-                           }
-                           cout << endl;
-                       }
-                       
-                       
-                       int main(){
+int main(){
                            
                            ID * id = new ID(3);
                            ID * lp = new ID(3);
@@ -544,15 +559,17 @@ int hasHamOne(Uni_var A, Uni_var B){                                // returns -
                            
                            D_var * ds = createD_varSymPolys(3, 3);
                            
+                           cout << "hi" << endl;
+                           
                            //Uni_var * kks = createKeyRing(*id, ds, 3);
                            
-                           for(int i = 0; i < 9; i++){
+                           /*for(int i = 0; i < 9; i++){
                                
                                for(int j = 0; j < 12; j++){
                                    cout << "ds[" << i << "][" << j << "] = " << static_cast<int>((*(ds + i)).getCoeffs().at(j)) << endl;
                                    //cout << "ds[" << i << "][" << j << "] = " << static_cast<int>((*(ds + i)).getExpns().at(j)) << endl;
                                }
-                           }
+                           }*/
                            
                            //Uni_var * jp = createKeyRing(lp);
                            
