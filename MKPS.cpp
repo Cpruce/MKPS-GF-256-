@@ -40,18 +40,20 @@ private:
 public:
     ID(){};
     ID(unsigned char d){
-        (*this).d = d;
+        d = d;
         ls = new unsigned char[d];
     };
     
     unsigned char * get() {   
-        return (*this).ls;
+        return ls;
     }
     unsigned char getSize() {   
-        return (*this).d;
+        return d;
     }
     
-    ~ID(){ delete this;};
+    ~ID(){ 
+        delete[] ls;
+    };
     
 };
 
@@ -65,28 +67,33 @@ private:
 public:
     Uni_var(){};
     Uni_var(unsigned char d, unsigned char m){
-        (*this).dmo = d-1;
-        (*this).m = m;
+        dmo = d-1;
+        m = m;
+        coeffs = *new vector<unsigned char>();
+        expns = *new vector<unsigned char>();
     }; 
     vector<unsigned char> getCoeffs() {   
-        return (*this).coeffs;
+        return coeffs;
     }
     vector<unsigned char> getExpns() {   
-        return (*this).expns;
+        return expns;
     }
     unsigned char getSize() {   
-        return (*this).dmo;
+        return dmo;
     }
     unsigned char getM(){
-        return (*this).m;
+        return m;
     }
-    void setUniPolyEx(int i, unsigned char elem){
-        (*this).expns.at(i) = elem;
+    void setUniPolyEx(unsigned char elem){
+        expns.push_back(elem);
     }
-    void setUniPolyCo(int i, unsigned char elem){
-        (*this).coeffs.at(i) = elem;
+    void setUniPolyCo(unsigned char elem){
+        coeffs.push_back(elem);
     }
-    ~Uni_var(){ delete this;};
+    ~Uni_var(){ 
+        delete &coeffs;
+        delete &expns;
+    };
     
 };
 
@@ -102,34 +109,37 @@ private:
 public:
     D_var(){};
     D_var(unsigned char d, unsigned char m){
-        (*this).d = d;
-        (*this).m = m;
-        (*this).t = calcLT(M, d);
-        (*this).expns = *new vector<vector<unsigned char> > ();
-        (*this).coeffs = *new vector<unsigned char> ();
+        d = d;
+        m = m;
+        t = calcLT(M, d);
+        expns = *new vector<vector<unsigned char> > ();
+        coeffs = *new vector<unsigned char> ();
     }; 
     vector<unsigned char> getCoeffs() {   
-        return (*this).coeffs;
+        return coeffs;
     }
     vector< vector<unsigned char> > getExpns() {   
-        return (*this).expns;
+        return expns;
     }
     unsigned char getDim() {   
-        return (*this).d;
+        return d;
     }
     unsigned char getM(){
-        return (*this).m;
+        return m;
     }
     unsigned char getLT(){
-        return (*this).t;
+        return t;
     }
     void setDPolyEx(vector< vector<unsigned char> > elem){
-        (*this).expns = elem;
+        expns = elem;
     }
     void setDPolyCo(vector<unsigned char> elem){
-        (*this).coeffs = elem;
+        coeffs = elem;
     }
-    ~D_var(){ delete this;};
+    ~D_var(){ 
+        delete &coeffs;
+        delete &expns;
+        };
     
 };
 
@@ -143,22 +153,25 @@ private:
 public:
     SymKey(){};
     SymKey(unsigned char d, unsigned char m){
-        (*this).d = d;
-        (*this).m = m;
+        d = d;
+        m = m;
     };
     vector<unsigned char> getExpns() {   
-        return (*this).expns;
+        return expns;
     }
     vector<unsigned char> getCoeffs() {   
-        return (*this).coeffs;
+        return coeffs;
     }
     unsigned char getSize() {   
-        return (*this).d;
+        return d;
     }
     unsigned char getM(){
-        return (*this).m;
+        return m;
     }
-    ~SymKey(){ delete this;};
+    ~SymKey(){ 
+        delete &coeffs;
+        delete &expns;
+        };
     
 };
 
@@ -182,6 +195,7 @@ public:
             }
         }
     }
+    ~hypercube(){delete &hQ;}
 };
 
 template<size_t d>
@@ -200,6 +214,7 @@ public:
             }
         }
     }
+    ~hypercubeAux(){delete &hQ;}
 };
 
 
@@ -282,69 +297,68 @@ Uni_var * simplify(Uni_var * lst){
     return lst;
 }
 
+vector<unsigned char> remove (vector<unsigned char> lst, int j){
+    vector<unsigned char> n = *new vector<unsigned char>();
+    for(int i = 0; i < lst.size(); i++){
+        if(i != j){
+            n.push_back(lst.at(i));
+        }
+    }
+    return n;
+}
+
 Uni_var * createKeyRing(ID id, D_var * dv, int m){                        // constructs d-univariate keys for a given ID
-    unsigned char d = id.getSize();
-    //int L = 2*factorial(d);
+    int d = id.getSize();
+    int L = 2*factorial(d);
     Uni_var * ring = new Uni_var[d];
-    Uni_var temp = *new Uni_var(d, *id.get());
+    Uni_var * temp = new Uni_var(d, *id.get());
+    vector<unsigned char> ex = *new vector<unsigned char>();
     int count = 0;
-    
-    unsigned char jFlag = 0;
-    
+    int terms = 0;
+    cout <<"id size = " << d << endl;
     for(int x = 0; x < d; x++){
         
         for (int y = 0; y < m; y++) {
             
-            count = 0;
+            terms = 0;
             for(int i = 0; i < 2; i++){
                 
-                for(int j = 0; j < d; j++){     
-                if(x != j && jFlag == 0){
-                    temp.setUniPolyEx(j, dv[(x*d)+y].getExpns()[i][j]);
-                    temp.setUniPolyCo(j, dv[(x*d)+y].getCoeffs()[i]);
-                    vector<unsigned char> ex = *remove(&dv[(x*d)+y].getExpns()[i], &dv[(x*d)+y].getExpns()[i] + d, dv[(x*d)+y].getExpns()[j]);
-                    
+                for(int j = 0; j < d; j++){  
+                    if(j != x){
+                                    
+                        (*temp).setUniPolyEx(dv[(x*d)+y].getExpns()[i][j]);
+                        (*temp).setUniPolyCo(dv[(x*d)+y].getCoeffs()[i]);
+                        ex = remove(dv[(x*d)+y].getExpns()[i], j);
+                        
                     do {
-                        vector<unsigned char> pws;
-                        for(int z = 0; z < d-1; z++){ //or 1
-                            pws.push_back(power(*(id.get() + z), ex.at(z)));
-                            temp.setUniPolyCo(z, product(temp.getCoeffs()[z], pws.at(z)));
+                        for(int z = 0; z < factorial(d-1); z++){ //or 1
+                            
+                            (*temp).setUniPolyCo(product((*temp).getCoeffs()[z], power(*(id.get() + z), ex.at(z))));
                         }
                         
                     } while (next_permutation(ex.begin(), ex.end()));
                     
-                       
                 }
-                else if(x != j){
-                    temp.setUniPolyEx(j-1, dv[(x*d)+y].getExpns()[i][j]);
-                    temp.setUniPolyCo(j-1, dv[(x*d)+y].getCoeffs()[i]);
-                    vector<unsigned char> ex = *remove(&dv[(x*d)+y].getExpns()[i], &dv[(x*d)+y].getExpns()[i] + d, dv[(x*d)+y].getExpns()[j]);
-                    
-                    do {
-                        vector<unsigned char> pws;
-                        for(int z = 0; z < d-1; z++){ //or 1
-                            pws.push_back(power(*(id.get() + z), ex.at(z)));
-                            temp.setUniPolyCo(z, product(temp.getCoeffs()[z], pws.at(z)));
-                        }
-                        
-                    } while (next_permutation(ex.begin(), ex.end()));
-                    
-                    
-                }
-                else {
-                    jFlag = 1;                                  // jth element is passed
-                    j = -1;
-                }
-                       
             }
-            ring[count] = temp;
+                
+                terms++;        
+            }
+                cout << "terms = " << terms << endl;
+            
+            ring[count] = *temp;
+            
             count++;
+            
+            ex.clear();
+
+            cout << "yoooo" << endl;
                        
-        }
     }
+    
 }
-    cout << "count = " << count << endl;
-    ring = simplify(ring);
+    cout << "terms = " << terms << endl;
+    
+    //ring = simplify(ring);
                        
     return ring;
 }
@@ -556,6 +570,8 @@ int main(){
                                    //cout << "ds[" << i << "][" << j << "] = " << static_cast<int>((*(ds + i)).getExpns().at(j)) << endl;
                                }
                            }
+    
+    cout <<"id size = " << (*id).getSize() << endl;
                            
                            Uni_var * rg = createKeyRing(*id, dvs, 256);
                            
