@@ -17,7 +17,7 @@ unsigned char Log[GF], ALog[GF]; // establish global Log and Antilog arrays
         // fill the Log[] and ALog[] arrays with appropriate integer values 
 
 
-void FillLogArrays (void) { 
+void FillLogArrays () { 
     int i; 
     Log[0] = GF - 1;                        //initialization
     ALog[0] = 1; 
@@ -35,17 +35,13 @@ void FillLogArrays (void) {
     } 
 } 
 
-unsigned char sum_dif (unsigned char X, unsigned char Y){ 
-    return X ^ Y;
-}
-
-unsigned char product (unsigned char A, unsigned char B) { 
+unsigned char Product (unsigned char A, unsigned char B) { 
     if ((A == 0) || (B == 0)) return (0); 
     else return (ALog[(Log[A] + Log[B]) % (GF-1)]); 
 }
 
-unsigned char quotient (unsigned char A, unsigned char B) { // namely A divided by B 
-    if (B == 0) return (1-GF); // signifying an error! 
+unsigned char Quotient (unsigned char A, unsigned char B) {  
+    if (B == 0) return (1-GF); 
     else if (A == 0) return (0); 
     else return (ALog[(Log[A] - Log[B] + (GF-1)) % (GF-1)]); 
 } 
@@ -53,13 +49,13 @@ unsigned char quotient (unsigned char A, unsigned char B) { // namely A divided 
 unsigned char inverse(unsigned char y)
 {
     if (y == 0) return -1;
-    return quotient(1, y);
+    return Quotient(1, y);
 }
 
 unsigned char power(unsigned char base, int exp){
     unsigned char pow = 1;
     for(int i = 0; i < exp; i++){
-        pow = product(base, pow);
+        pow = Product(base, pow);
     }
     return pow;
 }

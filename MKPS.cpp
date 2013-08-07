@@ -333,7 +333,7 @@ Uni_var * createKeyRing(ID id, D_var * dv, int m){                        // con
                     do {
                         for(int z = 0; z < factorial(d-1); z++){ //or 1
                             
-                            (*temp).setUniPolyCo(product((*temp).getCoeffs()[z], power(*(id.get() + z), ex.at(z))));
+                            (*temp).setUniPolyCo(Product((*temp).getCoeffs()[z], power(*(id.get() + z), ex.at(z))));
                         }
                         
                     } while (next_permutation(ex.begin(), ex.end()));
