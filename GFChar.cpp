@@ -3,7 +3,63 @@
 //  GFChar
 //
 //  Created by Cory Pruce on 7/10/13.
-//  Copyright (c) 2013 Pitzer College. All rights reserved.
-//
+//  Copyright (c) 2013 NYIT REU. All rights reserved.
+//  Code modified from "Arithmetic Operations in a Power-of-Two Galois Field" by AIM Inc.
 
 #include <iostream>
+
+using namespace std;
+
+#define GF 256 // define the Size & Prime Polynomial of this Galois field 
+#define PP 285 
+
+unsigned char Log[GF], ALog[GF]; // establish global Log and Antilog arrays 
+        // fill the Log[] and ALog[] arrays with appropriate integer values 
+
+
+void FillLogArrays (void) { 
+    int i; 
+    Log[0] = GF - 1;                        //initialization
+    ALog[0] = 1; 
+    for (i=1; i<GF; i++) { 
+        if (ALog[i-1] >= 128) { 
+            
+            ALog[i] = (ALog[i-1] * 2) ^ PP; // (2^i) mod PP, where (2^i) > 255
+            
+        }
+        else {
+            ALog[i] = ALog[i-1] * 2;        // (2^i) mod PP
+        }
+        
+        Log[ALog[i]] = i;                   // corresponding exponent
+    } 
+} 
+
+unsigned char sum_dif (unsigned char X, unsigned char Y){ 
+    return X ^ Y;
+}
+
+unsigned char product (unsigned char A, unsigned char B) { 
+    if ((A == 0) || (B == 0)) return (0); 
+    else return (ALog[(Log[A] + Log[B]) % (GF-1)]); 
+}
+
+unsigned char quotient (unsigned char A, unsigned char B) { // namely A divided by B 
+    if (B == 0) return (1-GF); // signifying an error! 
+    else if (A == 0) return (0); 
+    else return (ALog[(Log[A] - Log[B] + (GF-1)) % (GF-1)]); 
+} 
+
+unsigned char inverse(unsigned char y)
+{
+    if (y == 0) return -1;
+    return quotient(1, y);
+}
+
+unsigned char power(unsigned char base, int exp){
+    unsigned char pow = 1;
+    for(int i = 0; i < exp; i++){
+        pow = product(base, pow);
+    }
+    return pow;
+}
