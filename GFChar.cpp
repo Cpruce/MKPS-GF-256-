@@ -51,11 +51,3 @@ unsigned char inverse(unsigned char y)
     if (y == 0) return -1;
     return Quotient(1, y);
 }
-
-unsigned char power(unsigned char base, int exp){
-    unsigned char pow = 1;
-    for(int i = 0; i < exp; i++){
-        pow = Product(base, pow);
-    }
-    return pow;
-}
