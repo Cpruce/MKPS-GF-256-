@@ -39,8 +39,8 @@ private:
     
 public:
     ID(){};
-    ID(unsigned char d){
-        d = d;
+    ID(unsigned char dim){
+        d = dim;
         ls = new unsigned char[d];
     };
     
@@ -66,9 +66,9 @@ private:
     unsigned char m;
 public:
     Uni_var(){};
-    Uni_var(unsigned char d, unsigned char m){
+    Uni_var(unsigned char d, unsigned char mNum){
         dmo = d-1;
-        m = m;
+        m = mNum;
         coeffs = *new vector<unsigned char>();
         expns = *new vector<unsigned char>();
     }; 
@@ -108,9 +108,9 @@ private:
     unsigned char t;
 public:
     D_var(){};
-    D_var(unsigned char d, unsigned char m){
-        d = d;
-        m = m;
+    D_var(unsigned char dim, unsigned char mNum){
+        d = dim;
+        m = mNum;
         t = calcLT(M, d);
         expns = *new vector<vector<unsigned char> > ();
         coeffs = *new vector<unsigned char> ();
@@ -152,9 +152,9 @@ private:
     unsigned char m;
 public:
     SymKey(){};
-    SymKey(unsigned char d, unsigned char m){
-        d = d;
-        m = m;
+    SymKey(unsigned char dim, unsigned char mNum){
+        d = dim;
+        m = mNum;
     };
     vector<unsigned char> getExpns() {   
         return expns;
@@ -308,7 +308,7 @@ vector<unsigned char> remove (vector<unsigned char> lst, int j){
 }
 
 Uni_var * createKeyRing(ID id, D_var * dv, int m){                        // constructs d-univariate keys for a given ID
-    int d = id.getSize();
+    int d = static_cast<int>(id.getSize());
     int L = 2*factorial(d);
     Uni_var * ring = new Uni_var[d];
     Uni_var * temp = new Uni_var(d, *id.get());
@@ -324,10 +324,12 @@ Uni_var * createKeyRing(ID id, D_var * dv, int m){                        // con
             for(int i = 0; i < 2; i++){
                 
                 for(int j = 0; j < d; j++){  
+                    cout << "j = " << j << " and x = " << x << endl;
                     if(j != x){
                                     
                         (*temp).setUniPolyEx(dv[(x*d)+y].getExpns()[i][j]);
                         (*temp).setUniPolyCo(dv[(x*d)+y].getCoeffs()[i]);
+                        cout << "dv[(x*d)+y].getCoeffs()[i] is " << static_cast<int>(dv[(x*d)+y].getCoeffs()[i]) << endl;
                         ex = remove(dv[(x*d)+y].getExpns()[i], j);
                         
                     do {
@@ -498,16 +500,16 @@ double probabilityLinkKeyCompromise(int t, int m){
                        
 //print function
                        
-template<class T>
+/*template<class T>
 void print(T obj){
     int d = (*obj).getSize();
-    unsigned char * l = (*obj).get();
+    vector<unsigned char> l = (*obj).get();
     //cout << "d is " << d << endl;
     for(int i = 0; i < d; i++){
-        cout << "The " << i << "th element is " << static_cast<int>(*(l + i)) << endl;
+        cout << "The " << i << "th element is " << static_cast<int>(l.at(i)) << endl;
     }
     cout << endl;
-}
+}*/
                        
                        
 int main(){
@@ -530,9 +532,9 @@ int main(){
                            *((*lp).get() + 1) = 4;
                            *((*lp).get() + 2) = 1;
                            
-                           print(id);
+                           //print(id);
                            
-                           print(lp);
+                           //print(lp);
                            
                            /*Uni_var * a = new Uni_var(3, 0);
                             Uni_var * b = new Uni_var(3, 0);
@@ -566,14 +568,28 @@ int main(){
                            for(int i = 0; i < 9; i++){
                                
                                for(int j = 0; j < 2; j++){
-                                   cout << "ds[" << i << "][" << j << "] = " << static_cast<int>((*(dvs + i)).getCoeffs().at(j)) << endl;
+                                   for(int s = 0; s < 3; s++){
+                                   cout << "ds[" << i << "][" << j << "][" << s << "] = " << static_cast<int>((*(dvs + i)).getExpns().at(j).at(s)) << endl;
                                    //cout << "ds[" << i << "][" << j << "] = " << static_cast<int>((*(ds + i)).getExpns().at(j)) << endl;
+                                   }
                                }
                            }
+                            
     
-    cout <<"id size = " << (*id).getSize() << endl;
+                           //cout <<"id size = " << (*id).getSize() << endl;
                            
-                           Uni_var * rg = createKeyRing(*id, dvs, 256);
+                           //Uni_var * rg = createKeyRing(*id, dvs, 256);
+    
+    //cout << static_cast<int>((rg + 0)->getCoeffs().at(0)) << endl;
+    
+    /*for(int i = 0; i < 3; i++){
+        for(int j = 0; j < rg->getExpns().size(); j++){
+            cout << "rg[" << i << "].expnAt(" << j << ") is " << static_cast<int>((rg + i)->getExpns().at(j)) << endl; 
+        }
+        for (int k = 0; k < rg->getCoeffs().size(); k++) {
+            cout << "rg[" << i << "].coefAt(" << k << ") is " << static_cast<int>((rg + i)->getCoeffs().at(k)) << endl;
+        }
+    }*/
                            
                            //print(jp);
                            
