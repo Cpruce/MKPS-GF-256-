@@ -267,6 +267,12 @@ D_var * createD_varSymPolys(unsigned char d, unsigned char m){
             (*(D_vars + i*d + j)).setDPolyEx((*temp).getExpns());
             
         }
+        
+        
+        
+        
+        
+        
     }
 
     return D_vars; 
@@ -311,56 +317,86 @@ Uni_var * createKeyRing(ID id, D_var * dv, int m){                        // con
     int d = static_cast<int>(id.getSize());
     int L = 2*factorial(d);
     Uni_var * ring = new Uni_var[d];
-    Uni_var * temp = new Uni_var(d, *id.get());
+    Uni_var * temp = new Uni_var(d, m);
     vector<unsigned char> ex = *new vector<unsigned char>();
-    int count = 0;
+    unsigned char val;
+    //int count = 0;
     int terms = 0;
-    cout <<"id size = " << d << endl;
+    //cout <<"id size = " << d << endl;
     for(int x = 0; x < d; x++){
         
         for (int y = 0; y < m; y++) {
             
-            terms = 0;
+            //terms = 0;
             for(int i = 0; i < 2; i++){
                 
                 for(int j = 0; j < d; j++){  
-                    cout << "j = " << j << " and x = " << x << endl;
+                    
+                    //cout << "j = " << j << " and x = " << x << endl;
+                    
                     if(j != x){
-                                    
+                        
+                        //cout << "(" << x << "*" << d << ")+" << y << " = " << (x*d)+y << endl;
+                        
                         (*temp).setUniPolyEx(dv[(x*d)+y].getExpns()[i][j]);
                         (*temp).setUniPolyCo(dv[(x*d)+y].getCoeffs()[i]);
-                        cout << "dv[(x*d)+y].getCoeffs()[i] is " << static_cast<int>(dv[(x*d)+y].getCoeffs()[i]) << endl;
+                        
+                        
                         ex = remove(dv[(x*d)+y].getExpns()[i], j);
                         
-                    do {
-                        for(int z = 0; z < factorial(d-1); z++){ //or 1
+             
+                        for(int z = 0; z < factorial(d-1)-1; z++){ //or 1
                             
-                            (*temp).setUniPolyCo(Product((*temp).getCoeffs()[z], power(*(id.get() + z), ex.at(z))));
+                            do {
+                                
+                                val = (*temp).getCoeffs()[z];
+                                
+                                for(int q = 0; q < 2; q++){
+                                    
+                                    val = Product(val, power(*(id.get() + q), ex.at(q)));
+                                    
+                                }
+                                
+                                (*temp).setUniPolyCo(val);
+                                                     
+                            } while (next_permutation(ex.begin(), ex.end()));
                         }
                         
-                    } while (next_permutation(ex.begin(), ex.end()));
+                    
                     
                 }
+                    //cout << "hi" << endl;
+                    //ring[j] = *temp;
+                    //cout << "hello" << endl;
+                    //ex.clear();
+                }
+                terms++;
+                        
             }
-                
-                terms++;        
-            }
-                cout << "terms = " << terms << endl;
             
-            ring[count] = *temp;
+                //cout << "terms = " << terms << endl;
             
-            count++;
+            //ring[count] = *temp;
             
-            ex.clear();
+            //count++;
+            
+            //ex.clear();
 
-            cout << "yoooo" << endl;
+            //cout << "count = " << count << endl;
                        
-    }
+        }
+        
+        ring[x] = *temp;
+        ex.clear();
+        
     
 }
-    cout << "terms = " << terms << endl;
+    //cout << "terms = " << terms << endl;
     
     //ring = simplify(ring);
+    
+    cout << "L = " << L << endl;
+    cout << "terms = " << terms << endl;
                        
     return ring;
 }
@@ -565,7 +601,7 @@ int main(){
                            
                            //Uni_var * kks = createKeyRing(*id, ds, 3);
                            
-                           for(int i = 0; i < 9; i++){
+                           /*for(int i = 0; i < 9; i++){
                                
                                for(int j = 0; j < 2; j++){
                                    for(int s = 0; s < 3; s++){
@@ -573,23 +609,31 @@ int main(){
                                    //cout << "ds[" << i << "][" << j << "] = " << static_cast<int>((*(ds + i)).getExpns().at(j)) << endl;
                                    }
                                }
-                           }
-                            
+                           }*/
+    /*for(int i = 0; i < 9; i++){
+        
+        for(int j = 0; j < 2; j++){
+            //for(int s = 0; s < 3; s++){
+                cout << "ds[" << i << "][" << j << "] = " << static_cast<int>((*(dvs + i)).getCoeffs().at(j)) << endl;
+                //cout << "ds[" << i << "][" << j << "] = " << static_cast<int>((*(ds + i)).getExpns().at(j)) << endl;
+            //}
+        }
+    }*/
     
                            //cout <<"id size = " << (*id).getSize() << endl;
                            
-                           //Uni_var * rg = createKeyRing(*id, dvs, 256);
+                           Uni_var * rg = createKeyRing(*id, dvs, 3);
     
     //cout << static_cast<int>((rg + 0)->getCoeffs().at(0)) << endl;
     
-    /*for(int i = 0; i < 3; i++){
+    for(int i = 0; i < 3; i++){
         for(int j = 0; j < rg->getExpns().size(); j++){
             cout << "rg[" << i << "].expnAt(" << j << ") is " << static_cast<int>((rg + i)->getExpns().at(j)) << endl; 
         }
         for (int k = 0; k < rg->getCoeffs().size(); k++) {
             cout << "rg[" << i << "].coefAt(" << k << ") is " << static_cast<int>((rg + i)->getCoeffs().at(k)) << endl;
         }
-    }*/
+    }
                            
                            //print(jp);
                            
