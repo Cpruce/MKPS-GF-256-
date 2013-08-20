@@ -317,90 +317,49 @@ Uni_var * createKeyRing(ID id, D_var * dv, int m){                        // con
     int d = static_cast<int>(id.getSize());
     int L = 2*factorial(d);
     Uni_var * ring = new Uni_var[d];
-    Uni_var * temp = new Uni_var(d, m);
     vector<unsigned char> ex = *new vector<unsigned char>();
     unsigned char val;
-    //int count = 0;
-    //int terms = 0;
-    //cout <<"id size = " << d << endl;
+
     for(int x = 0; x < d; x++){
         
         for (int y = 0; y < m; y++) {
             
-            //terms = 0;
             for(int i = 0; i < 2; i++){
                 
                 for(int j = 0; j < d; j++){  
                     
-                    //cout << "j = " << j << " and x = " << x << endl;
-                    
                     if(j != x){
-                        
-                        //cout << "(" << x << "*" << d << ")+" << y << " = " << (x*d)+y << endl;
-                        
-                        (*temp).setUniPolyEx(dv[(x*d)+y].getExpns()[i][j]);
-                        
-                        
                         
                         ex = remove(dv[(x*d)+y].getExpns()[i], j);
                         
-             
                         for(int z = 0; z < factorial(d-1)-1; z++){ //or 1
-                            
-                            val = 0;
-                            
-                            do {
-                                
-                                val += dv[(x*d)+y].getCoeffs()[i];
                                 
                                 for(int q = 0; q < 2; q++){
-                                    
-                                    val = Product(val, power(*(id.get() + q), ex.at(q)));
+                                    next_permutation(ex.begin(), ex.end());
+                                    val += Product(dv[(x*d)+y].getCoeffs()[q], power(*(id.get() + q), ex.at(q)));
                                     
                                 }
-                                                   
-                            } while (next_permutation(ex.begin(), ex.end()));
                             
-                            (*temp).setUniPolyCo(val);
                         }
                         
-                    
+                        (*(ring + x)).setUniPolyCo(val);
+                        
+                        (*(ring + x)).setUniPolyEx(dv[(x*d)+y].getExpns()[i][j]);
                     
                         }
                     
-                    //ring[j] = *temp;
-                    
-                    //ex.clear();
                     }
-                
-                //terms++;
+
                         
                 }
             
-                //cout << "terms = " << terms << endl;
-            
-            //ring[count] = *temp;
-            
-            //count++;
-            
-            //ex.clear();
-
-            //cout << "count = " << count << endl;
-                       
             }
         
-        ring[x] = *temp;
-        ex.clear();
-        
+        ex.clear();  
     
     }
-    //cout << "terms = " << terms << endl;
     
     //ring = simplify(ring);
-    
-    cout << "L = " << L << endl;
-    cout << "terms = " << (*ring).getCoeffs().size() << endl;
-    //cout << "terms = " << terms << endl;
                        
     return ring;
 }
@@ -553,7 +512,7 @@ void print(T obj){
                        
                        
 int main(){
-                           
+                           FillLogArrays();
                            ID * id = new ID(3);
                            ID * lp = new ID(3);
                            
@@ -622,7 +581,8 @@ int main(){
                 //cout << "ds[" << i << "][" << j << "] = " << static_cast<int>((*(ds + i)).getExpns().at(j)) << endl;
             //}
         }
-    }*/
+    }
+    */
     
                            //cout <<"id size = " << (*id).getSize() << endl;
                            
@@ -630,14 +590,14 @@ int main(){
     
     //cout << static_cast<int>((rg + 0)->getCoeffs().at(0)) << endl;
     
-    for(int i = 0; i < 3; i++){
+    /*for(int i = 0; i < 3; i++){
         for(int j = 0; j < rg->getExpns().size(); j++){
             cout << "rg[" << i << "].expnAt(" << j << ") is " << static_cast<int>((rg + i)->getExpns().at(j)) << endl; 
         }
         for (int k = 0; k < rg->getCoeffs().size(); k++) {
             cout << "rg[" << i << "].coefAt(" << k << ") is " << static_cast<int>((rg + i)->getCoeffs().at(k)) << endl;
         }
-    }
+    }*/
                            
                            //print(jp);
                            
