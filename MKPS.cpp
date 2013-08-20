@@ -155,6 +155,8 @@ public:
     SymKey(unsigned char dim, unsigned char mNum){
         d = dim;
         m = mNum;
+        expns = *new vector<unsigned char>();
+        coeffs = *new vector<unsigned char>();
     };
     vector<unsigned char> getExpns() {   
         return expns;
@@ -278,8 +280,6 @@ D_var * createD_varSymPolys(unsigned char d, unsigned char m){
     return D_vars; 
 }
 
-
-
 /* Link-Key Establishment */
 
 Uni_var * simplify(Uni_var * lst){
@@ -315,7 +315,7 @@ vector<unsigned char> remove (vector<unsigned char> lst, int j){
 
 Uni_var * createKeyRing(ID id, D_var * dv, int m){                        // constructs d-univariate keys for a given ID
     int d = static_cast<int>(id.getSize());
-    int L = 2*factorial(d);
+    //int L = 2*factorial(d);
     Uni_var * ring = new Uni_var[d];
     vector<unsigned char> ex = *new vector<unsigned char>();
     unsigned char val;
@@ -332,7 +332,7 @@ Uni_var * createKeyRing(ID id, D_var * dv, int m){                        // con
                         
                         ex = remove(dv[(x*d)+y].getExpns()[i], j);
                         
-                        for(int z = 0; z < factorial(d-1)-1; z++){ //or 1
+                        for(int z = 0; z < factorial(d-1)-1; z++){
                                 
                                 for(int q = 0; q < 2; q++){
                                     next_permutation(ex.begin(), ex.end());
@@ -394,17 +394,17 @@ SymKey * establishLinkKey(ID A, ID B, D_var * dv, int m){
         unsigned char d = A.getSize();
                            
         SymKey * symKeys = new SymKey[d-1];
-                           
+    
         Uni_var * aRing = createKeyRing(A, dv, m);
         Uni_var * bRing = createKeyRing(B, dv, m);
-                           
+            
         int common = -1;
         unsigned char sInd = 0;
                            
         for(unsigned char i = 0; i < d; i++){
-                               
+                               cout << "here" << endl; 
             if((common = hasHamOne(aRing[i], bRing[i])) != -1){   // create key
-                                   
+                                  
                 m = (*(aRing + i)).getM();
                                    
                 *(symKeys + sInd) = *new SymKey(d, m);
@@ -441,14 +441,14 @@ SymKey * establishLinkKey(ID A, ID B, D_var * dv, int m){
             sInd++;
         }
                            
-        unsigned char sum;
+        /*unsigned char sum;
         for(int i = 0; i < d-1; i++){
             cout << "SymKey[" << i << "]'s m = " << static_cast<int>((*(symKeys + i)).getM()) << endl;
             for(int j = 0; j < d; j++){
                 cout << "SymKey[" << i << "][" << j << "] = " << static_cast<int>((*(symKeys + i)).getCoeffs().at(j)) << endl;
                 sum^=(*(symKeys + i)).getCoeffs().at(j);
             }
-        }
+        }*/
                            
         return symKeys;
 }
@@ -586,7 +586,7 @@ int main(){
     
                            //cout <<"id size = " << (*id).getSize() << endl;
                            
-                           Uni_var * rg = createKeyRing(*id, dvs, 3);
+                           //Uni_var * rg = createKeyRing(*id, dvs, 3);
     
     //cout << static_cast<int>((rg + 0)->getCoeffs().at(0)) << endl;
     
@@ -601,7 +601,17 @@ int main(){
                            
                            //print(jp);
                            
-                           //establishLinkKey(id, lp);
+                           SymKey * sks = establishLinkKey(*id, *lp, dvs, 3);
+                            
+    for(int i = 0; i < 2; i++){
+        for(int j = 0; j < sks->getExpns().size(); j++){
+            cout << "sks[" << i << "].expnAt(" << j << ") is " << static_cast<int>((sks + i)->getExpns().at(j)) << endl; 
+        }
+        for (int k = 0; k < sks->getCoeffs().size(); k++) {
+            cout << "sks[" << i << "].coefAt(" << k << ") is " << static_cast<int>((sks + i)->getCoeffs().at(k)) << endl;
+        }
+    }
+                
                            
                            //cout << "binomialCoefficient(6,2) = " << binomialCoefficient(6,2) << endl;
                            
