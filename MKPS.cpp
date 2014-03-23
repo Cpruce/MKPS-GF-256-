@@ -440,7 +440,9 @@ SymKey * establishLinkKey(ID A, ID B, D_var * dv, int m){
             common = -1;
             sInd++;
         }
-                           
+                       
+        //assert that there really are d-1 common keys!
+            
         /*unsigned char sum;
         for(int i = 0; i < d-1; i++){
             cout << "SymKey[" << i << "]'s m = " << static_cast<int>((*(symKeys + i)).getM()) << endl;
