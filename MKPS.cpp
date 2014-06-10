@@ -17,9 +17,12 @@
 
 //int M -> maximum storage space of each sensor node
 
-const int M = 1000;     // i.e.
+#define M 1000     // i.e.
 
-const int n = 10000;    // i.e.
+#define n 10000    // i.e.
+
+#define two_exp8 256 // 2^8
+#define two_exp8_m_one 255 // 2^8 - 1
 
 unsigned char calcLT(unsigned char M, unsigned char d);
 
@@ -91,8 +94,8 @@ public:
         coeffs.push_back(elem);
     }
     ~Uni_var(){ 
-        delete &coeffs;
-        delete &expns;
+        delete coeffs;
+        delete expns;
     };
     
 };
@@ -137,8 +140,8 @@ public:
         coeffs = elem;
     }
     ~D_var(){ 
-        delete &coeffs;
-        delete &expns;
+        delete coeffs;
+        delete expns;
         };
     
 };
@@ -171,8 +174,8 @@ public:
         return m;
     }
     ~SymKey(){ 
-        delete &coeffs;
-        delete &expns;
+        delete coeffs;
+        delete expns;
         };
     
 };
@@ -199,7 +202,7 @@ public:
             }
         }
     }
-    ~hypercube(){delete &hQ;}
+    ~hypercube(){delete hQ;}
 };
 
 template<size_t d>
@@ -211,14 +214,14 @@ public:
         if(d != 1){
             hQ = new vector<hypercubeAux<d-1> >(d);
             int i = 0;
-            while(i < 256){
+            while(i < two_exp8){
                 
                 (*hQ).push_back(hypercubeAux<d-1>());
                 i++;
             }
         }
     }
-    ~hypercubeAux(){delete &hQ;}
+    ~hypercubeAux(){delete hQ;}
 };
 
 
@@ -230,22 +233,24 @@ D_var * createD_varSymPolys(unsigned char d, unsigned char m){
     D_var * temp = new D_var(d, m);
     unsigned char t = (*temp).getLT();
     unsigned char t_m_one = t - 1; // NEED CHECK FOR t = 0
-    unsigned char alpha = rand() % 255;                    // coefficients from GF(256)
-    unsigned char beta = rand() % 255;
+    unsigned char alpha = rand() % two_exp8_m_one;                    // coefficients from GF(256)
+    unsigned char beta = rand() % two_exp8_m_one;
     unsigned char a1 = rand() % t_m_one;                   // 0 <= (exponents = psuedo-random number) < t
     unsigned char a2 = rand() % t_m_one;
     unsigned char b0 = rand() % t_m_one;
     unsigned char b1 = rand() % t_m_one;
     unsigned char b2 = rand() % t_m_one;
     int maj_ind;
+    int i;
+    int j;
 
-    for(int i = 0; i < d; i++){
+    for(i = 0; i < d; i++){
         
         eps.push_back(*new vector< vector < vector <unsigned char > > >());
         cfs.push_back(*new vector < vector <unsigned char > >());
        	maj_ind = i * d; 
         
-	for(int j = 0; j < m; j++){
+	for(j = 0; j < m; j++){
             
             eps.at(i).push_back(*new vector < vector <unsigned char > >());
             cfs.at(i).push_back(*new vector<unsigned char>());
@@ -259,8 +264,8 @@ D_var * createD_varSymPolys(unsigned char d, unsigned char m){
             eps.at(i).at(j).at(1).push_back(b0);
             eps.at(i).at(j).at(1).push_back(b1);
             eps.at(i).at(j).at(1).push_back(b2);
-            alpha = rand() % 255;
-            beta = rand() % 255;
+            alpha = rand() % two_exp8_m_one;
+            beta = rand() % two_exp8_m_one;
             a1 = rand() % t_m_one;                   
             a2 = rand() % t_m_one;
             b0 = rand() % t_m_one;
