@@ -190,10 +190,12 @@ public:
             int m = calcLM(d, n);
             double md = pow((double)m, (double)d);
             vector<ID> ids = *new vector<ID>(md);
-            while(i < md){
+            vector<ID> * ids_ptr = &ids; 
+	    while(i < md){
                 
-                *(&ids + i) = (*hQ).push_back(hypercube<d-1>());
-                i++;
+                //*(&ids + i) = (*hQ).push_back(hypercube<d-1>());
+                *(ids_ptr + i) = (*hQ).push_back(hypercube<d-1>());
+		i++;
             }
         }
     }
@@ -227,15 +229,16 @@ D_var * createD_varSymPolys(unsigned char d, unsigned char m){
     vector< vector< vector < vector <unsigned char > > > > eps = *new vector< vector< vector < vector <unsigned char> > > >();
     D_var * temp = new D_var(d, m);
     unsigned char t = (*temp).getLT();
-    
+    unsigned char t_m_one = t - 1; // NEED CHECK FOR t = 0
     unsigned char alpha = rand() % 255;                    // coefficients from GF(256)
     unsigned char beta = rand() % 255;
-    unsigned char a1 = rand() % (t - 1);                   // 0 <= (exponents = psuedo-random number) < t
-    unsigned char a2 = rand() % (t - 1);
-    unsigned char b0 = rand() % (t - 1);
-    unsigned char b1 = rand() % (t - 1);
-    unsigned char b2 = rand() % (t - 1);
-    
+    unsigned char a1 = rand() % t_m_one;                   // 0 <= (exponents = psuedo-random number) < t
+    unsigned char a2 = rand() % t_m_one;
+    unsigned char b0 = rand() % t_m_one;
+    unsigned char b1 = rand() % t_m_one;
+    unsigned char b2 = rand() % t_m_one;
+    int maj_ind;
+
     for(int i = 0; i < d; i++){
         
         eps.push_back(*new vector< vector < vector <unsigned char > > >());
@@ -257,16 +260,17 @@ D_var * createD_varSymPolys(unsigned char d, unsigned char m){
             eps.at(i).at(j).at(1).push_back(b2);
             alpha = rand() % 255;
             beta = rand() % 255;
-            a1 = rand() % (t - 1);                   
-            a2 = rand() % (t - 1);
-            b0 = rand() % (t - 1);
-            b1 = rand() % (t - 1);
-            b2 = rand() % (t - 1);
+            a1 = rand() % t_m_one;                   
+            a2 = rand() % t_m_one;
+            b0 = rand() % t_m_one;
+            b1 = rand() % t_m_one;
+            b2 = rand() % t_m_one;
             
-            (*temp).setDPolyCo(cfs[i][j]);
+	    maj_ind = i * d;
+            (*temp).setDPolyCo(cfs[i][j]);  // do the same here
             (*temp).setDPolyEx(eps[i][j]);
-            (*(D_vars + i*d + j)).setDPolyCo((*temp).getCoeffs());
-            (*(D_vars + i*d + j)).setDPolyEx((*temp).getExpns());
+            (*(D_vars + maj_ind + j)).setDPolyCo((*temp).getCoeffs());
+            (*(D_vars + maj_ind + j)).setDPolyEx((*temp).getExpns());
             
         }
         
@@ -319,6 +323,7 @@ Uni_var * createKeyRing(ID id, D_var * dv, int m){                        // con
     Uni_var * ring = new Uni_var[d];
     vector<unsigned char> ex = *new vector<unsigned char>();
     unsigned char val;
+    int maj_ind;
 
     for(int x = 0; x < d; x++){
         
@@ -327,16 +332,17 @@ Uni_var * createKeyRing(ID id, D_var * dv, int m){                        // con
             for(int i = 0; i < 2; i++){
                 
                 for(int j = 0; j < d; j++){  
-                    
+                	
+		    maj_ind = x * d;	
                     if(j != x){
                         
-                        ex = remove(dv[(x*d)+y].getExpns()[i], j);
+                        ex = remove(dv[maj_ind+y].getExpns()[i], j);
                         
                         for(int z = 0; z < factorial(d-1)-1; z++){
                                 
                                 for(int q = 0; q < 2; q++){
                                     next_permutation(ex.begin(), ex.end());
-                                    val += Product(dv[(x*d)+y].getCoeffs()[q], power(*(id.get() + q), ex.at(q)));
+                                    val += Product(dv[maj_ind+y].getCoeffs()[q], power(*(id.get() + q), ex.at(q)));
                                     
                                 }
                             
@@ -344,7 +350,7 @@ Uni_var * createKeyRing(ID id, D_var * dv, int m){                        // con
                         
                         (*(ring + x)).setUniPolyCo(val);
                         
-                        (*(ring + x)).setUniPolyEx(dv[(x*d)+y].getExpns()[i][j]);
+                        (*(ring + x)).setUniPolyEx(dv[maj_ind+y].getExpns()[i][j]);
                     
                         }
                     
@@ -400,17 +406,19 @@ SymKey * establishLinkKey(ID A, ID B, D_var * dv, int m){
             
         int common = -1;
         unsigned char sInd = 0;
+	int j;
+	int ind;
                            
         for(unsigned char i = 0; i < d; i++){
-                               cout << "here" << endl; 
+                               cout << "here" << endl; // look for mem leeks
             if((common = hasHamOne(aRing[i], bRing[i])) != -1){   // create key
                                   
                 m = (*(aRing + i)).getM();
                                    
                 *(symKeys + sInd) = *new SymKey(d, m);
                                    
-                int j = 0;
-                int ind = 0;
+                j = 0;
+                ind = 0;
                                    
                 while(j < d){
                                        
@@ -485,7 +493,8 @@ double binomialCoefficient(int n, int j){               // n choose j
                        
 double probabilityLinkKeyEstablishment(double d, double m, double v){
     double theta = 1 - ((double)(1/m));
-    return ((d*(m-2)+v)*(pow(m-1, d)))/(n*(n-1)) + (theta*pow(m, d)*(m*(d-1) + v*pow(theta, v-1) + m*(1-d)*pow(theta, v))/(n*(n-1)));
+    int n_m_one = n - 1;
+    return ((d*(m-2)+v)*(pow(m-1, d)))/(n*n_m_one) + (theta*pow(m, d)*(m*(d-1) + v*pow(theta, v-1) + m*(1-d)*pow(theta, v))/(n*n_m_one));
 }
 
 double probabilityLinkKeyCompromise(int t, int m){
