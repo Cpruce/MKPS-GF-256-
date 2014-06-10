@@ -243,8 +243,9 @@ D_var * createD_varSymPolys(unsigned char d, unsigned char m){
         
         eps.push_back(*new vector< vector < vector <unsigned char > > >());
         cfs.push_back(*new vector < vector <unsigned char > >());
+       	maj_ind = i * d; 
         
-        for(int j = 0; j < m; j++){
+	for(int j = 0; j < m; j++){
             
             eps.at(i).push_back(*new vector < vector <unsigned char > >());
             cfs.at(i).push_back(*new vector<unsigned char>());
@@ -266,7 +267,7 @@ D_var * createD_varSymPolys(unsigned char d, unsigned char m){
             b1 = rand() % t_m_one;
             b2 = rand() % t_m_one;
             
-	    maj_ind = i * d;
+	    
             (*temp).setDPolyCo(cfs[i][j]);  // do the same here
             (*temp).setDPolyEx(eps[i][j]);
             (*(D_vars + maj_ind + j)).setDPolyCo((*temp).getCoeffs());
@@ -326,14 +327,16 @@ Uni_var * createKeyRing(ID id, D_var * dv, int m){                        // con
     int maj_ind;
 
     for(int x = 0; x < d; x++){
+       	
+	maj_ind = x * d;  // major index
         
-        for (int y = 0; y < m; y++) {
+	for (int y = 0; y < m; y++) {
             
             for(int i = 0; i < 2; i++){
                 
                 for(int j = 0; j < d; j++){  
                 	
-		    maj_ind = x * d;	
+		    	
                     if(j != x){
                         
                         ex = remove(dv[maj_ind+y].getExpns()[i], j);
