@@ -41,19 +41,17 @@ D_var ** createD_varSymPolys(unsigned char d, unsigned char m){
 			cout << "dgfd" << endl;
 		
 
-			D_vars[maj_ind + j]->expns.push_back(*new vector<unsigned char>(3));	
-			D_vars[maj_ind + j]->expns.at(0).push_back(t);
+			D_vars[maj_ind + j]->expns.push_back(t);
 			cout << "dgfd" << endl;
-			D_vars[maj_ind + j]->expns.at(0).push_back(a1);
+			D_vars[maj_ind + j]->expns.push_back(a1);
 			cout << "dgfd" << endl;
-			D_vars[maj_ind + j]->expns.at(0).push_back(a2);	
+			D_vars[maj_ind + j]->expns.push_back(a2);	
 			cout << "dgfd" << endl;
-			D_vars[maj_ind + j]->expns.push_back(*new vector<unsigned char>(3));
-			D_vars[maj_ind + j]->expns.at(1).push_back(b0);
+			D_vars[maj_ind + j]->expns.push_back(b0);
 			cout << "dgfd" << endl;
-			D_vars[maj_ind + j]->expns.at(1).push_back(b1);	
+			D_vars[maj_ind + j]->expns.push_back(b1);	
 			cout << "dgfd" << endl;
-			D_vars[maj_ind + j]->expns.at(1).push_back(b2);	
+			D_vars[maj_ind + j]->expns.push_back(b2);	
 			cout << "dgfd" << endl;
 			
 			alpha = rand() % TWO_EXP8_M_ONE;
