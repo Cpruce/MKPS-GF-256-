@@ -17,12 +17,12 @@
 #include "sym_key.h"
 #include "hypercube.h"
 
-D_var * createD_varSymPolys(unsigned char d, unsigned char m);  
+D_var ** createD_varSymPolys(unsigned char d, unsigned char m);  
 Uni_var * simplify(Uni_var * lst);
 vector<unsigned char> * remove (vector<unsigned char> lst, int j);
 Uni_var * createKeyRing(ID id, D_var * dv, int m);
 int hasHamOne(Uni_var A, Uni_var B);
-SymKey * establishLinkKey(ID A, ID B, D_var * dv, int m);
+SymKey * establishLinkKey(ID A, ID B, D_var ** dv, int m);
 int factorial(int ent);
 double binomialCoefficient(int n, int j);
 double probabilityLinkKeyEstablishment(double d, double m, double v);

@@ -8,13 +8,15 @@
 
 #include "mkps.h"
 
-D_var * createD_varSymPolys(unsigned char d, unsigned char m){
+D_var ** createD_varSymPolys(unsigned char d, unsigned char m){
     
-    D_var * D_vars = new D_var[d*m];
-    vector< vector < vector <unsigned char > > > cfs = *new vector< vector < vector <unsigned char> > > ();
-    vector< vector< vector < vector <unsigned char > > > > eps = *new vector< vector< vector < vector <unsigned char> > > >();
-    D_var * temp = new D_var(d, m);
-    unsigned char t = temp->getLT();
+    D_var ** D_vars = new D_var*[d*m];
+    
+	vector<unsigned char> cfs;
+	vector<unsigned char> eps;
+
+    D_vars[0] = new D_var(d, m);
+	unsigned char t = D_vars[0]->getLT();
     unsigned char t_m_one = t - 1; // NEED CHECK FOR t = 0
     unsigned char alpha = rand() % TWO_EXP8_M_ONE;                    // coefficients from GF(256)
     unsigned char beta = rand() % TWO_EXP8_M_ONE;
@@ -29,25 +31,32 @@ D_var * createD_varSymPolys(unsigned char d, unsigned char m){
 
     for(i = 0; i < d; i++){
         
-        eps.push_back(*new vector< vector < vector <unsigned char > > >());
-        cfs.push_back(*new vector < vector <unsigned char > >());
-       	maj_ind = i * d; 
+		maj_ind = i * d; 
         
 		for(j = 0; j < m; j++){
+			cout << "dgfd" << endl;
             
-            eps.at(i).push_back(*new vector < vector <unsigned char > >());
-            cfs.at(i).push_back(*new vector<unsigned char>());
-            cfs.at(i).at(j).push_back(alpha);
-            cfs.at(i).at(j).push_back(beta);
-            eps.at(i).at(j).push_back(*new vector<unsigned char>());
-            eps.at(i).at(j).push_back(*new vector<unsigned char>());
-            eps.at(i).at(j).at(0).push_back(t);
-            eps.at(i).at(j).at(0).push_back(a1);
-            eps.at(i).at(j).at(0).push_back(a2);
-            eps.at(i).at(j).at(1).push_back(b0);
-            eps.at(i).at(j).at(1).push_back(b1);
-            eps.at(i).at(j).at(1).push_back(b2);
-            alpha = rand() % TWO_EXP8_M_ONE;
+			D_vars[maj_ind + j]->coeffs.push_back(alpha);
+			D_vars[maj_ind + j]->coeffs.push_back(beta);
+			cout << "dgfd" << endl;
+		
+
+			D_vars[maj_ind + j]->expns.push_back(*new vector<unsigned char>(3));	
+			D_vars[maj_ind + j]->expns.at(0).push_back(t);
+			cout << "dgfd" << endl;
+			D_vars[maj_ind + j]->expns.at(0).push_back(a1);
+			cout << "dgfd" << endl;
+			D_vars[maj_ind + j]->expns.at(0).push_back(a2);	
+			cout << "dgfd" << endl;
+			D_vars[maj_ind + j]->expns.push_back(*new vector<unsigned char>(3));
+			D_vars[maj_ind + j]->expns.at(1).push_back(b0);
+			cout << "dgfd" << endl;
+			D_vars[maj_ind + j]->expns.at(1).push_back(b1);	
+			cout << "dgfd" << endl;
+			D_vars[maj_ind + j]->expns.at(1).push_back(b2);	
+			cout << "dgfd" << endl;
+			
+			alpha = rand() % TWO_EXP8_M_ONE;
             beta = rand() % TWO_EXP8_M_ONE;
             a1 = rand() % t_m_one;                   
             a2 = rand() % t_m_one;
@@ -56,17 +65,17 @@ D_var * createD_varSymPolys(unsigned char d, unsigned char m){
             b2 = rand() % t_m_one;
             
 	    
-            temp->setDPolyCo(&cfs[i][j]);  // do the same here
-            temp->setDPolyEx(&eps[i][j]);
-            (*(D_vars + maj_ind + j)).setDPolyCo(temp->getCoeffs());
-            (*(D_vars + maj_ind + j)).setDPolyEx(temp->getExpns());
-            
-        }
-        
+			D_vars[maj_ind + j] = new D_var(d, m);
+		
+			eps.clear();
+			cfs.clear();
+
+		}
         
     }
 
-    return D_vars; 
+    
+	return D_vars; 
 }
 
 /* Link-Key Establishment */
@@ -102,7 +111,7 @@ Uni_var * simplify(Uni_var * lst){
     
 }*/
 
-Uni_var * createKeyRing(ID id, D_var * dv, int m){                        // constructs d-univariate keys for a given ID
+Uni_var * createKeyRing(ID id, D_var ** dv, int m){                        // constructs d-univariate keys for a given ID
     int d = static_cast<int>(id.getSize());
     //int L = 2*factorial(d);
     Uni_var * ring = new Uni_var[d];
@@ -126,7 +135,7 @@ Uni_var * createKeyRing(ID id, D_var * dv, int m){                        // con
                         //remove(ex, dv[maj_ind+y].getExpns()[i], j);
 
 						//check ex was created alright
-                        *ex = dv[maj_ind+y].getExpns()->at(i);
+                        *ex = dv[maj_ind+y]->getExpns().at(i);
 						ex->erase(ex->begin() + j);
 
 
@@ -134,7 +143,7 @@ Uni_var * createKeyRing(ID id, D_var * dv, int m){                        // con
                                 
                         	for(int q = 0; q < 2; q++){
 								next_permutation(ex->begin(), ex->end());
-                                val += Product(dv[maj_ind+y].getCoeffs()->at(q), power(*(id.get() + q), ex->at(q)));
+                                val += Product(dv[maj_ind+y]->getCoeffs().at(q), power(*(id.get() + q), ex->at(q)));
                                     
                             }
                             
@@ -142,7 +151,7 @@ Uni_var * createKeyRing(ID id, D_var * dv, int m){                        // con
                        
                         ring[x].setUniPolyCo(val);
                         
-                        ring[x].setUniPolyEx(dv[maj_ind+y].getExpns()->at(i).at(j));
+                        ring[x].setUniPolyEx(dv[maj_ind+y]->getExpns().at(i).at(j));
                     
                         }
                     
@@ -187,7 +196,7 @@ int hasHamOne(Uni_var A, Uni_var B){                                // returns -
     return j;
  }
                        
-SymKey * establishLinkKey(ID A, ID B, D_var * dv, int m){
+SymKey * establishLinkKey(ID A, ID B, D_var ** dv, int m){
     
         unsigned char d = A.getSize();
                            
@@ -374,7 +383,7 @@ int main(){
                            //std::cout << static_cast<int>((*jk).getSize()) << endl;
 		printID(id);
 		printID(lp);		
-		D_var * dvs = createD_varSymPolys(3, 3);
+		D_var ** dvs = createD_varSymPolys(3, 3);
                            
                            //Uni_var * kks = createKeyRing(*id, ds, 3);
                            

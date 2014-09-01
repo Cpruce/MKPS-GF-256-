@@ -6,25 +6,25 @@
 class D_var{
     
 private:
-    vector < vector <unsigned char > > *expns; 
-    vector <unsigned char > *coeffs;
     unsigned char d;
     unsigned char m;
     unsigned char L;
     unsigned char t;
 public:
-    D_var(){};
+    vector < vector <unsigned char > > expns; 
+    vector <unsigned char > coeffs;
+	D_var(){};
     D_var(unsigned char dim, unsigned char mNum){
         d = dim;
         m = mNum;
-        t = calcLT(d);
-        expns = new vector<vector<unsigned char> > ();
-        coeffs = new vector<unsigned char> ();
+        t = calcLT(d);		
+        //expns = new vector<vector<unsigned char> > ();
+        //coeffs = new vector<unsigned char> (2); //alpha beta
     }; 
-    vector<unsigned char> *getCoeffs() {   
+    vector<unsigned char> getCoeffs() {   
         return coeffs;
     }
-    vector< vector<unsigned char> > *getExpns() {   
+    vector< vector<unsigned char> > getExpns() {   
         return expns;
     }
     unsigned char getDim() {   
@@ -37,17 +37,45 @@ public:
         return t;
     }
 	// make sure elem was malloc'd
-    void setDPolyEx(vector< vector<unsigned char> > *elem){
-        delete expns;
-		expns = elem;
-    }
-    void setDPolyCo(vector<unsigned char> *elem){
-        delete coeffs;
-		coeffs = elem;
+    void setDPolyEx(vector< vector<unsigned char> > elem){
+		//expns = elem;
+    	int elem_len = elem.size();
+		vector<unsigned char> temp;
+		int in_arr_len;
+	
+		expns.clear();
+		expns.resize(elem_len);
+
+		for(int i = 0; i < elem_len; i++){
+			
+			temp = elem.at(i);
+
+			in_arr_len = temp.size();
+			
+			expns.at(i).resize(in_arr_len);
+
+			for(int j = 0; j < in_arr_len; j++){
+				
+				expns.at(i).push_back(temp.at(j));
+
+			}
+		}
+	}
+    void setDPolyCo(vector<unsigned char> elem){
+		//coeffs = elem;
+		
+		int elem_len = elem.size();
+
+		coeffs.clear();
+		coeffs.resize(elem_len);
+
+		for(int i = 0; i < elem_len; i++){
+			coeffs.push_back(elem.at(i));
+		}
     }
     ~D_var(){ 
-        delete coeffs;
-        delete expns;
+        delete &coeffs;
+        delete &expns;
     };
     
 };
