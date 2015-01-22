@@ -6,11 +6,11 @@ CC = g++
 
 all: mkps
 
-mkps.o: mkps.cpp mkps.h
-	$(CC) -c mkps.cpp
-
 gfchar.o: gfchar.cpp gfchar.h
 	$(CC) -c gfchar.cpp
+
+mkps.o: mkps.cpp mkps.h
+	$(CC) -c mkps.cpp
 
 mkps: mkps.o gfchar.o
 

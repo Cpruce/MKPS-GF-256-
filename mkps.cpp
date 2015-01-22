@@ -133,7 +133,7 @@ Uni_var * createKeyRing(ID id, D_var ** dv, int m){                        // co
                         //remove(ex, dv[maj_ind+y].getExpns()[i], j);
 
 						//check ex was created alright
-                        *ex = dv[maj_ind+y]->getExpns().at(i);
+                        *ex = dv[maj_ind+y]->getExpns();//.at(i);
 						ex->erase(ex->begin() + j);
 
 
@@ -149,8 +149,8 @@ Uni_var * createKeyRing(ID id, D_var ** dv, int m){                        // co
                        
                         ring[x].setUniPolyCo(val);
                         
-                        ring[x].setUniPolyEx(dv[maj_ind+y]->getExpns().at(i).at(j));
-                    
+                        //ring[x].setUniPolyEx(dv[maj_ind+y]->getExpns().at(i).at(j));
+							ring[x].setUniPolyEx(dv[maj_ind+y]->getExpns().at(i));	 
                         }
                     
                     }
