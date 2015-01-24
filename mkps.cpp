@@ -9,7 +9,6 @@
 #include "mkps.h"
 
 D_var ** createD_varSymPolys(unsigned char d, unsigned char m){
-    
     D_var ** D_vars = new D_var*[d*m];
     
 	vector<unsigned char> cfs;
@@ -34,25 +33,17 @@ D_var ** createD_varSymPolys(unsigned char d, unsigned char m){
 		maj_ind = i * d; 
         
 		for(j = 0; j < m; j++){
-			cout << "dgfd" << endl;
-            
-			D_vars[maj_ind + j]->coeffs.push_back(alpha);
-			D_vars[maj_ind + j]->coeffs.push_back(beta);
-			cout << "dgfd" << endl;
+		    D_vars[maj_ind + j] = new D_var(d, m);
+		    D_vars[maj_ind + j]->coeffs->push_back(alpha);
+			D_vars[maj_ind + j]->coeffs->push_back(beta);
 		
 
-			D_vars[maj_ind + j]->expns.push_back(t);
-			cout << "dgfd" << endl;
-			D_vars[maj_ind + j]->expns.push_back(a1);
-			cout << "dgfd" << endl;
-			D_vars[maj_ind + j]->expns.push_back(a2);	
-			cout << "dgfd" << endl;
-			D_vars[maj_ind + j]->expns.push_back(b0);
-			cout << "dgfd" << endl;
-			D_vars[maj_ind + j]->expns.push_back(b1);	
-			cout << "dgfd" << endl;
-			D_vars[maj_ind + j]->expns.push_back(b2);	
-			cout << "dgfd" << endl;
+			D_vars[maj_ind + j]->expns->push_back(t);
+			D_vars[maj_ind + j]->expns->push_back(a1);
+			D_vars[maj_ind + j]->expns->push_back(a2);	
+			D_vars[maj_ind + j]->expns->push_back(b0);
+			D_vars[maj_ind + j]->expns->push_back(b1);	
+			D_vars[maj_ind + j]->expns->push_back(b2);	
 			
 			alpha = rand() % TWO_EXP8_M_ONE;
             beta = rand() % TWO_EXP8_M_ONE;
@@ -63,16 +54,13 @@ D_var ** createD_varSymPolys(unsigned char d, unsigned char m){
             b2 = rand() % t_m_one;
             
 	    
-			D_vars[maj_ind + j] = new D_var(d, m);
-		
+					
 			eps.clear();
 			cfs.clear();
 
 		}
         
     }
-
-    
 	return D_vars; 
 }
 
@@ -131,7 +119,6 @@ Uni_var * createKeyRing(ID id, D_var ** dv, int m){                        // co
                     if(j != x){
                         
                         //remove(ex, dv[maj_ind+y].getExpns()[i], j);
-
 						//check ex was created alright
                         *ex = dv[maj_ind+y]->getExpns();//.at(i);
 						ex->erase(ex->begin() + j);
@@ -150,7 +137,7 @@ Uni_var * createKeyRing(ID id, D_var ** dv, int m){                        // co
                         ring[x].setUniPolyCo(val);
                         
                         //ring[x].setUniPolyEx(dv[maj_ind+y]->getExpns().at(i).at(j));
-							ring[x].setUniPolyEx(dv[maj_ind+y]->getExpns().at(i));	 
+							ring[x].setUniPolyEx(dv[maj_ind+y]->getExpns().at(i));	
                         }
                     
                     }
@@ -195,9 +182,10 @@ int hasHamOne(Uni_var A, Uni_var B){                                // returns -
  }
                        
 SymKey * establishLinkKey(ID A, ID B, D_var ** dv, int m){
-    
-        unsigned char d = A.getSize();
-                           
+   
+        
+		unsigned char d = A.getSize();
+        cout << "sf" << endl;                   
         SymKey * symKeys = new SymKey[d-1];
     
         Uni_var * aRing = createKeyRing(A, dv, m);
@@ -343,13 +331,13 @@ int main(){
 		//*((*lp).get() + 1) = 4;
 		//(*(*lp).get()).at(2) = 9;
                            
-		*((*id).get()) = 3;
-		*((*id).get() + 1) = 2;
-		*((*id).get() + 2) = 1;
+		*(id->get()) = 3;
+		*(id->get() + 1) = 2;
+		*(id->get() + 2) = 1;
 
-		*((*lp).get()) = 3;
-		*((*lp).get() + 1) = 4;
-		*((*lp).get() + 2) = 1;
+		*(lp->get()) = 3;
+		*(lp->get() + 1) = 4;
+		*(lp->get() + 2) = 1;
                            
 		//print(id);
                            
@@ -382,7 +370,6 @@ int main(){
 		printID(id);
 		printID(lp);		
 		D_var ** dvs = createD_varSymPolys(3, 3);
-                           
                            //Uni_var * kks = createKeyRing(*id, ds, 3);
                            
                            /*for(int i = 0; i < 9; i++){
@@ -423,8 +410,8 @@ int main(){
 		//print(jp);
                            
 	    SymKey * sks = establishLinkKey(*id, *lp, dvs, 3);
-                            
-    	for(int i = 0; i < 2; i++){
+    	
+		for(int i = 0; i < 2; i++){
         	for(int j = 0; j < sks->getExpns()->size(); j++){
         	    std::cout << "sks[" << i << "].expnAt(" << j << ") is " << static_cast<int>((sks + i)->getExpns()->at(j)) << endl; 
         	}

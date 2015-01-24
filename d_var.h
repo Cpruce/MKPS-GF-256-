@@ -11,21 +11,21 @@ private:
     unsigned char L;
     unsigned char t;
 public:
-    vector <unsigned char > expns; 
-    vector <unsigned char > coeffs;
+    vector <unsigned char > *expns; 
+    vector <unsigned char > *coeffs;
 	D_var(){};
     D_var(unsigned char dim, unsigned char mNum){
         d = dim;
         m = mNum;
         t = calcLT(d);		
-        //expns = new vector<vector<unsigned char> > ();
-        //coeffs = new vector<unsigned char> (2); //alpha beta
+        expns = new vector<unsigned char>();//new vector<vector<unsigned char> > ();
+        coeffs = new vector<unsigned char> (2); //alpha beta
     }; 
     vector<unsigned char> getCoeffs() {   
-        return coeffs;
+        return *coeffs;
     }
     vector<unsigned char> getExpns() {   
-        return expns;
+        return *expns;
     }
     unsigned char getDim() {   
         return d;
@@ -42,11 +42,11 @@ public:
 		
 		int elem_len = elem.size();
 
-		expns.clear();
-		expns.resize(elem_len);
+		expns->clear();
+		expns->resize(elem_len);
 
 		for(int i = 0; i < elem_len; i++){
-			expns.push_back(elem.at(i));
+			expns->push_back(elem.at(i));
 		}		
     
     }
@@ -55,16 +55,16 @@ public:
 		
 		int elem_len = elem.size();
 
-		coeffs.clear();
-		coeffs.resize(elem_len);
+		coeffs->clear();
+		coeffs->resize(elem_len);
 
 		for(int i = 0; i < elem_len; i++){
-			coeffs.push_back(elem.at(i));
+			coeffs->push_back(elem.at(i));
 		}
     }
     ~D_var(){ 
-        delete &coeffs;
-        delete &expns;
+        delete coeffs;
+        delete expns;
     };
     
 };
