@@ -24,8 +24,8 @@ public:
     vector<unsigned char> getCoeffs() {   
         return *coeffs;
     }
-    vector<unsigned char> getExpns() {   
-        return *expns;
+    vector<unsigned char>* getExpns() {   
+        return expns;
     }
     unsigned char getDim() {   
         return d;

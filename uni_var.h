@@ -50,7 +50,7 @@ public:
         expns->push_back(elem);
     }
     void setUniPolyCo(unsigned char elem){
-        coeffs->push_back(elem);
+		coeffs->push_back(elem);
     }
     ~Uni_var(){ 
         delete coeffs;
