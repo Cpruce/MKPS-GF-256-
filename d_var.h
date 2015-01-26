@@ -18,8 +18,8 @@ public:
         d = dim;
         m = mNum;
         t = calcLT(d);		
-        expns = new vector<unsigned char>();//new vector<vector<unsigned char> > ();
-        coeffs = new vector<unsigned char> (2); //alpha beta
+        expns = new vector<unsigned char>();
+		coeffs = new vector<unsigned char> (2); //alpha beta
     }; 
     vector<unsigned char> getCoeffs() {   
         return *coeffs;
@@ -38,7 +38,6 @@ public:
     }
 	// make sure elem was malloc'd
     void setDPolyEx(vector<unsigned char> elem){
-		//expns = elem;
 		
 		int elem_len = elem.size();
 
@@ -51,7 +50,6 @@ public:
     
     }
     void setDPolyCo(vector<unsigned char> elem){
-		//coeffs = elem;
 		
 		int elem_len = elem.size();
 

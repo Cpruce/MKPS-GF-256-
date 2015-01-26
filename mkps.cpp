@@ -14,6 +14,9 @@ D_var ** createD_varSymPolys(unsigned char d, unsigned char m){
 		vector<unsigned char> cfs;
 		vector<unsigned char> eps;
 
+		vector<unsigned char> a_shuffle;
+		vector<unsigned char> b_shuffle;
+
 		D_vars[0] = new D_var(d, m);
 		unsigned char t = D_vars[0]->getLT();
 		delete D_vars[0];
@@ -33,15 +36,20 @@ D_var ** createD_varSymPolys(unsigned char d, unsigned char m){
 
 				maj_ind = i * d; 
 
-				for(j = 0; j < m; j++){
+				for(j = 0; j < m; j++){ // d*m d-variate polynomials
+						
 						D_vars[maj_ind + j] = new D_var(d, m);
 						D_vars[maj_ind + j]->coeffs->push_back(alpha);
 						D_vars[maj_ind + j]->coeffs->push_back(beta);
 
-
-						D_vars[maj_ind + j]->expns->push_back(t);
-						D_vars[maj_ind + j]->expns->push_back(a1);
-						D_vars[maj_ind + j]->expns->push_back(a2);	
+						// update here
+						std::exit(1);
+						//for(int k = 0; k < d-1; k++){
+								D_vars[maj_ind + j]->expns->push_back(t);
+								D_vars[maj_ind + j]->expns->push_back(a1);
+								D_vars[maj_ind + j]->expns->push_back(a2);	
+						//}
+					
 						D_vars[maj_ind + j]->expns->push_back(b0);
 						D_vars[maj_ind + j]->expns->push_back(b1);	
 						D_vars[maj_ind + j]->expns->push_back(b2);	
@@ -139,12 +147,11 @@ Uni_var ** createKeyRing(ID id, D_var ** dv, int m){                        // c
 												//cout << "size is " << ex->size() << endl;
 
 												ring[x]->setUniPolyCo(val);
-
-												//ring[x].setUniPolyEx(dv[maj_ind+y]->getExpns().at(i).at(j));
-												ring[x]->getExpns()->push_back(dv[maj_ind+y]->getExpns()->at(i));//setUniPolyEx(dv[maj_ind+y]->getExpns()->at(i));	
+												cout << "dv size is " <<dv[maj_ind+y]->getExpns()->size() << endl; 
+												//ring[x]->getExpns()->push_back(dv[maj_ind+y]->getExpns()->at(i));
+												ring[x]->getExpns()->push_back(ex->at(i));
+												
 												cout << "j is " << j  << " and ring[" << x << "]->getExpns()->size() is " << ring[x]->getExpns()->size()<< endl;
-												//count++;
-												//cout << "pass" << endl;
 										}
 
 								}
@@ -175,7 +182,7 @@ int hasHamOne(Uni_var * A, Uni_var * B){                                // retur
 		cout << "expns is " << static_cast<int>(B->getExpns()->size()) << " and dmo is " << static_cast<int>(dmo) << endl;
 
 		for(int i = 0; i < std::min((int)dmo, (int)B->getExpns()->size()); i++){
-				//cout << "a size is " << static_cast<int>(A->getSize()) << "b size is " << static_cast<int>(B->getSize()) << endl; 
+				cout << "A->getExpns()->at(i) is " << static_cast<int>(A->getExpns()->at(i)) << " and for B: " << static_cast<int>(B->getExpns()->at(i)) << endl; 
 				if(A->getExpns()->at(i) == B->getExpns()->at(i)){ //or getCoeffs
 						j = i;
 						count++;
@@ -192,7 +199,7 @@ int hasHamOne(Uni_var * A, Uni_var * B){                                // retur
 		return j;
 }
 
-SymKey * establishLinkKey(ID A, ID B, D_var ** dv, int m){
+SymKey ** establishLinkKey(ID A, ID B, D_var ** dv, int m){
 		/*		for(int i = 0; i < 9; i++){
 
 				for(int j = 0; j < 2; j++){
@@ -204,11 +211,12 @@ SymKey * establishLinkKey(ID A, ID B, D_var ** dv, int m){
 		} */
 
 		unsigned char d = A.getSize();
-		SymKey * symKeys = new SymKey[d-1];
+		SymKey ** symKeys = new SymKey*[d-1];
 
 		Uni_var ** aRing = createKeyRing(A, dv, m);
 		Uni_var ** bRing = createKeyRing(B, dv, m);
 		
+
 		
 		int common = -1;
 		int sInd = 0;
@@ -216,13 +224,13 @@ SymKey * establishLinkKey(ID A, ID B, D_var ** dv, int m){
 		int ind;
 		cout << static_cast<int>(d) << endl;
 		for(int i = 0; i < d; i++){
-				std::cout << "bRing[i]->getM()" << static_cast<int>(bRing[i]->getM()) << endl; // look for mem leeks
-				if((common = hasHamOne(aRing[i], bRing[i])) != -1){   // create key
+				std::cout << "bRing[i]->getM()" << static_cast<int>(bRing[i]->getM()) << endl; 
+				if((common = hasHamOne(aRing[i], bRing[i])) != -1){   // create key of d-1 symmetric keys
 						cout << "return ? " << endl;
 						
 						m = aRing[i]->getM();
 
-						symKeys[sInd] = *new SymKey(d, m);
+						symKeys[sInd] = new SymKey(d, m);
 
 						j = 0;
 						ind = 0;
@@ -231,27 +239,21 @@ SymKey * establishLinkKey(ID A, ID B, D_var ** dv, int m){
 
 								if(j != common){
 										cout << "ind is " << ind << " and aRing[i]->getSize() is " << static_cast<int>(aRing[i]->getSize()) << endl;
-										//symKeys[sInd].getExpns()->at(j) = aRing[i]->getExpns()->at(ind);
-										//symKeys[sInd].getCoeffs()->at(j) = aRing[i]->getCoeffs()->at(ind);
-										//symKeys[sInd].getExpns()->at(j+1) = bRing[i]->getExpns()->at(ind);
-										//symKeys[sInd].getCoeffs()->at(j+1) = bRing[i]->getCoeffs()->at(ind);
-										cout << "symKeys[sInd] size is " << symKeys[sInd].getExpns()->size() << " and aRing[i]->getCoeffs()->size() is " << aRing[i]->getCoeffs()->size()<< endl;
-										symKeys[sInd].getExpns()->push_back(aRing[i]->getExpns()->at(ind));
-										symKeys[sInd].getCoeffs()->push_back(aRing[i]->getCoeffs()->at(ind));
-										symKeys[sInd].getExpns()->push_back(bRing[i]->getExpns()->at(ind));
-										symKeys[sInd].getCoeffs()->push_back(bRing[i]->getCoeffs()->at(ind));
+										cout << "symKeys[sInd] size is " << symKeys[sInd]->getExpns()->size() << " and aRing[i]->getCoeffs()->size() is " << aRing[i]->getCoeffs()->size()<< endl;
+										symKeys[sInd]->getExpns()->push_back(aRing[i]->getExpns()->at(ind));
+										symKeys[sInd]->getCoeffs()->push_back(aRing[i]->getCoeffs()->at(ind));
+										symKeys[sInd]->getExpns()->push_back(bRing[i]->getExpns()->at(ind));
+										symKeys[sInd]->getCoeffs()->push_back(bRing[i]->getCoeffs()->at(ind));
 
 
 										j++;
 
 								}
 								else {
-										cout << "symKeys[sInd] is " << symKeys[sInd].getExpns()->size() << endl;
+										cout << "symKeys[sInd] is " << symKeys[sInd]->getExpns()->size() << endl;
 
-										//symKeys[sInd].getExpns()->at(j) = aRing[i]->getExpns()->at(ind);
-										//symKeys[sInd].getCoeffs()->at(j) = aRing[i]->getCoeffs()->at(ind);
-										symKeys[sInd].getExpns()->push_back(aRing[i]->getExpns()->at(ind));
-										symKeys[sInd].getCoeffs()->push_back(aRing[i]->getCoeffs()->at(ind));	
+										symKeys[sInd]->getExpns()->push_back(aRing[i]->getExpns()->at(ind));
+										symKeys[sInd]->getCoeffs()->push_back(aRing[i]->getCoeffs()->at(ind));	
 								}
 
 								ind++;
@@ -279,7 +281,6 @@ SymKey * establishLinkKey(ID A, ID B, D_var ** dv, int m){
 		  sum^=(*(symKeys + i)).getCoeffs().at(j);
 		  }
 		  }*/
-
 		return symKeys;
 }
 
@@ -441,14 +442,18 @@ int main(){
 
 		//print(jp);
 
-		SymKey * sks = establishLinkKey(*id, *lp, dvs, 3);
+		SymKey ** sks = establishLinkKey(*id, *lp, dvs, 3);
+		// expns seem correct with 3 (d) * 2 (d-1) * 2 (alpha beta)
+
 
 		for(int i = 0; i < 2; i++){
-				for(int j = 0; j < sks->getExpns()->size(); j++){
-						std::cout << "sks[" << i << "].expnAt(" << j << ") is " << static_cast<int>(sks[i].getExpns()->at(j)) << endl; 
+						cout << "huh" << endl;
+						cout << "size is " <<sks[i]->getExpns()->size() << endl; 
+				for(int j = 0; j < sks[i]->getExpns()->size(); j++){
+						std::cout << "sks[" << i << "].expnAt(" << j << ") is " << static_cast<int>(sks[i]->getExpns()->at(j)) << endl; 
 				}
-				for (int k = 0; k < sks->getCoeffs()->size(); k++) {
-						std::cout << "sks[" << i << "].coefAt(" << k << ") is " << static_cast<int>(sks[i].getCoeffs()->at(k)) << endl;
+				for (int k = 0; k < sks[i]->getCoeffs()->size(); k++) {
+						std::cout << "sks[" << i << "].coefAt(" << k << ") is " << static_cast<int>(sks[i]->getCoeffs()->at(k)) << endl;
 				}
 		}
 
