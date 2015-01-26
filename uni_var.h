@@ -1,22 +1,6 @@
 #ifndef UNI_VAR_H
 #define UNI_VAR_H
 
-//using namespace std;
-
-/* Constants */
-//#define M 1000     // i.e.
-
-//#define n 10000    // i.e.
-
-//#define two_exp8 256 // 2^8
-//#define two_exp8_m_one 255 // 2^8 - 1
-
-//int d -> dimension of hypercube
-
-//int n -> # of nodes in field
-
-//int M -> maximum storage space of each sensor node
-
 #include "poly_aux.h"
 
 class Uni_var{
