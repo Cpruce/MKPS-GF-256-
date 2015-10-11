@@ -7,4 +7,4 @@ Note to self: rediscover valgrind when you're not as busy. valgrind "path"/mkps 
 
 <i> Please read pdf for actual info </i>
 
-This is under-construction. The project is a cryptographic scheme that handles authentication for resource-limited devices, ie. sensor networks. It was begun when I first started learning C++ and now I plan to return to it once I find free time and have finally solved the memory mystery :D (accessing address 0x2, doesn't seem like a very valid address)
+This is under-construction. The project is a cryptographic scheme that handles authentication and confidentiality for resource-limited devices, ie. sensor networks. At the moment, only the key generation and distribution phases are mostly implemented. It was begun when I first started learning C++ and now I plan to return to it once I find free time and have finally solved the memory mystery :D (accessing address 0x2, doesn't seem like a very valid address)
